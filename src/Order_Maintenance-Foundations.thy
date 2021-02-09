@@ -7,19 +7,7 @@ begin
 subsection \<open>Element Labelings\<close>
 
 typedef 'e element_labeling = "{m :: 'e \<rightharpoonup> nat. finite (dom m) \<and> inj_on m (dom m)}"
-proof -
-  have "finite (dom Map.empty)"
-    by simp
-  moreover have "inj_on Map.empty (dom Map.empty)"
-    unfolding dom_empty
-    using inj_on_empty .
-  ultimately have "finite (dom Map.empty) \<and> inj_on Map.empty (dom Map.empty)"
-    by (fact conjI)
-  then have "Map.empty \<in> {m :: 'e \<rightharpoonup> nat. finite (dom m) \<and> inj_on m (dom m)}"
-    by (fact CollectI)
-  then show ?thesis
-    by (fact exI)
-qed
+  by (rule exI [where x = Map.empty]) simp
 
 definition elements :: "'e element_labeling \<Rightarrow> 'e set" where
   [simp]: "elements \<E> = dom (Rep_element_labeling \<E>)"
