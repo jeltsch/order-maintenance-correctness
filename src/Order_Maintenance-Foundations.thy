@@ -66,8 +66,8 @@ lemma lowest_common_ancestor_is_total:
   shows "lowest_common_ancestor_dom ((h\<^sub>1, i\<^sub>1), (h\<^sub>2, i\<^sub>2))"
   sorry
 
-definition index :: "nat \<Rightarrow> nat \<Rightarrow> nat" where
-  [simp]: "index l h = l div 2 ^ h"
+definition index_at_height :: "nat \<Rightarrow> nat \<Rightarrow> nat" where
+  [simp]: "index_at_height l h = l div 2 ^ h"
 
 fun labels_under :: "nat \<times> nat \<Rightarrow> nat set" where
   "labels_under (h, i) = {2 ^ h * i .. 2 ^ h * i + 2 ^ h - 1}"
