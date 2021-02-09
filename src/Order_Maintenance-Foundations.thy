@@ -26,13 +26,16 @@ definition element_of :: "'e element_labeling \<Rightarrow> nat \<Rightarrow> 'e
 lemma element_of_after_label_of:
   assumes "e \<in> elements \<E>"
   shows "element_of \<E> (label_of \<E> e) = e"
-  sorry
+  unfolding element_of_def
+  using assms
+  by transfer (rule the_equality, simp, metis domIff option.expand inj_onD)
 
 lemma label_of_after_element_of:
   assumes "l \<in> labels \<E>"
   shows "label_of \<E> (element_of \<E> l) = l"
+  unfolding element_of_def
   using assms
-  sorry
+  by transfer (smt inj_onD dom_def ran_def not_None_eq mem_Collect_eq option.sel theI')
 
 subsection \<open>Supertrees\<close>
 
