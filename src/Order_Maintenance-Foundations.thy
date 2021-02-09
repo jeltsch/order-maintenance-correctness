@@ -39,8 +39,6 @@ lemma label_of_after_element_of:
 
 subsection \<open>Supertrees\<close>
 
-definition index :: "nat \<Rightarrow> nat \<Rightarrow> nat" where
-  [simp]: "index n h = n div 2 ^ h"
 
 fun parent :: "nat \<times> nat \<Rightarrow> nat \<times> nat" where
   "parent (h, i) = (Suc h, i div 2)"
@@ -67,6 +65,9 @@ where
 lemma lowest_common_ancestor_is_total:
   shows "lowest_common_ancestor_dom ((h\<^sub>1, i\<^sub>1), (h\<^sub>2, i\<^sub>2))"
   sorry
+
+definition index :: "nat \<Rightarrow> nat \<Rightarrow> nat" where
+  [simp]: "index n h = n div 2 ^ h"
 
 fun labels_under :: "nat \<times> nat \<Rightarrow> nat set" where
   "labels_under (h, i) = {2 ^ h * i .. 2 ^ h * i + 2 ^ h - 1}"
