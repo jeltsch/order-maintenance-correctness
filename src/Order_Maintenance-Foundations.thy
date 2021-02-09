@@ -67,7 +67,7 @@ lemma lowest_common_ancestor_is_total:
   sorry
 
 definition index :: "nat \<Rightarrow> nat \<Rightarrow> nat" where
-  [simp]: "index n h = n div 2 ^ h"
+  [simp]: "index l h = l div 2 ^ h"
 
 fun labels_under :: "nat \<times> nat \<Rightarrow> nat set" where
   "labels_under (h, i) = {2 ^ h * i .. 2 ^ h * i + 2 ^ h - 1}"
