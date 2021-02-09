@@ -9,14 +9,16 @@ subsection \<open>Element Labelings\<close>
 typedef 'e element_labeling = "{m :: 'e \<rightharpoonup> nat. finite (dom m) \<and> inj_on m (dom m)}"
   by (rule exI [where x = Map.empty]) simp
 
-definition elements :: "'e element_labeling \<Rightarrow> 'e set" where
-  [simp]: "elements \<E> = dom (Rep_element_labeling \<E>)"
+setup_lifting type_definition_element_labeling
 
-definition labels :: "'e element_labeling \<Rightarrow> nat set" where
-  [simp]: "labels \<E> = ran (Rep_element_labeling \<E>)"
+lift_definition elements :: "'e element_labeling \<Rightarrow> 'e set"
+  is dom .
 
-definition label_of :: "'e element_labeling \<Rightarrow> 'e \<Rightarrow> nat" where
-  [simp]: "label_of \<E> e = the ((Rep_element_labeling \<E>) e)"
+lift_definition labels :: "'e element_labeling \<Rightarrow> nat set"
+  is ran .
+
+lift_definition label_of :: "'e element_labeling \<Rightarrow> 'e \<Rightarrow> nat"
+  is "\<lambda>m e. the (m e)" .
 
 definition element_of :: "'e element_labeling \<Rightarrow> nat \<Rightarrow> 'e" where
   [simp]: "element_of \<E> l = (THE e. e \<in> elements \<E> \<and> label_of \<E> e = l)"
