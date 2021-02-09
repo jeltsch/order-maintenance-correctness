@@ -58,9 +58,9 @@ qed
 function (domintros)
   lowest_common_ancestor :: "nat \<times> nat \<Rightarrow> nat \<times> nat \<Rightarrow> nat \<times> nat" (infixl "\<squnion>" 65)
 where
-  "h\<^sub>1 < h\<^sub>2 \<Longrightarrow> (h\<^sub>1, i\<^sub>1) \<squnion> (h\<^sub>2, i\<^sub>2) = parent (h\<^sub>1, h\<^sub>2) \<squnion> (h\<^sub>2, i\<^sub>2)" |
-  "h\<^sub>1 > h\<^sub>2 \<Longrightarrow> (h\<^sub>1, i\<^sub>1) \<squnion> (h\<^sub>2, i\<^sub>2) = (h\<^sub>1, i\<^sub>1) \<squnion> parent (h\<^sub>2, i\<^sub>2)" |
-  "i\<^sub>1 \<noteq> i\<^sub>2 \<Longrightarrow> (h, i\<^sub>1) \<squnion> (h, i\<^sub>2) = parent (h, i\<^sub>1) \<squnion> parent (h, i\<^sub>2)" |
+  "(h\<^sub>1, i\<^sub>1) \<squnion> (h\<^sub>2, i\<^sub>2) = parent (h\<^sub>1, h\<^sub>2) \<squnion> (h\<^sub>2, i\<^sub>2)" if "h\<^sub>1 < h\<^sub>2" |
+  "(h\<^sub>1, i\<^sub>1) \<squnion> (h\<^sub>2, i\<^sub>2) = (h\<^sub>1, i\<^sub>1) \<squnion> parent (h\<^sub>2, i\<^sub>2)" if "h\<^sub>1 > h\<^sub>2" |
+  "(h, i\<^sub>1) \<squnion> (h, i\<^sub>2) = parent (h, i\<^sub>1) \<squnion> parent (h, i\<^sub>2)" if "i\<^sub>1 \<noteq> i\<^sub>2" |
   "(h, i) \<squnion> (h, i) = (h, i)"
   by fastforce+
 
