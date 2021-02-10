@@ -39,45 +39,46 @@ lemma label_of_after_element_of:
 
 subsection \<open>Supertrees\<close>
 
+datatype vertex = Vertex (height: \<open>nat\<close>) (index: \<open>nat\<close>) (\<open>\<langle>_, _\<rangle>\<close>)
 
-fun parent :: "nat \<times> nat \<Rightarrow> nat \<times> nat" where
-  "parent (h, i) = (Suc h, i div 2)"
+fun parent :: "vertex \<Rightarrow> vertex" where
+  "parent \<langle>h, i\<rangle> = \<langle>Suc h, i div 2\<rangle>"
 
 lemma parent_graph_is_acyclic:
   assumes "parent ^^ n = id"
   shows "n = 0"
 proof -
-  have "\<exists>i'. (parent ^^ n) (h, i) = (h + n, i')" for h and i
+  have "\<exists>i'. (parent ^^ n) \<langle>h, i\<rangle> = \<langle>h + n, i'\<rangle>" for h and i
     by (induction n) auto
   with assms show ?thesis
     by simp
 qed
 
 function (domintros)
-  lowest_common_ancestor :: "nat \<times> nat \<Rightarrow> nat \<times> nat \<Rightarrow> nat \<times> nat" (infixl "\<squnion>" 65)
+  lowest_common_ancestor :: "vertex \<Rightarrow> vertex \<Rightarrow> vertex" (infixl "\<squnion>" 65)
 where
-  "(h\<^sub>1, i\<^sub>1) \<squnion> (h\<^sub>2, i\<^sub>2) = parent (h\<^sub>1, h\<^sub>2) \<squnion> (h\<^sub>2, i\<^sub>2)" if "h\<^sub>1 < h\<^sub>2" |
-  "(h\<^sub>1, i\<^sub>1) \<squnion> (h\<^sub>2, i\<^sub>2) = (h\<^sub>1, i\<^sub>1) \<squnion> parent (h\<^sub>2, i\<^sub>2)" if "h\<^sub>1 > h\<^sub>2" |
-  "(h, i\<^sub>1) \<squnion> (h, i\<^sub>2) = parent (h, i\<^sub>1) \<squnion> parent (h, i\<^sub>2)" if "i\<^sub>1 \<noteq> i\<^sub>2" |
-  "(h, i) \<squnion> (h, i) = (h, i)"
-  by fastforce+
+  "\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle> = parent \<langle>h\<^sub>1, h\<^sub>2\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle>" if "h\<^sub>1 < h\<^sub>2" |
+  "\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle> = \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> parent \<langle>h\<^sub>2, i\<^sub>2\<rangle>" if "h\<^sub>1 > h\<^sub>2" |
+  "\<langle>h, i\<^sub>1\<rangle> \<squnion> \<langle>h, i\<^sub>2\<rangle> = parent \<langle>h, i\<^sub>1\<rangle> \<squnion> parent \<langle>h, i\<^sub>2\<rangle>" if "i\<^sub>1 \<noteq> i\<^sub>2" |
+  "\<langle>h, i\<rangle> \<squnion> \<langle>h, i\<rangle> = \<langle>h, i\<rangle>"
+  by (auto, metis not_less_iff_gr_or_eq vertex.exhaust)
 
 lemma lowest_common_ancestor_is_total:
-  shows "lowest_common_ancestor_dom ((h\<^sub>1, i\<^sub>1), (h\<^sub>2, i\<^sub>2))"
+  shows "lowest_common_ancestor_dom (\<langle>h\<^sub>1, i\<^sub>1\<rangle>, \<langle>h\<^sub>2, i\<^sub>2\<rangle>)"
   sorry
 
 definition index_at_height :: "nat \<Rightarrow> nat \<Rightarrow> nat" where
   [simp]: "index_at_height l h = l div 2 ^ h"
 
-fun labels_under :: "nat \<times> nat \<Rightarrow> nat set" where
-  "labels_under (h, i) = {2 ^ h * i .. 2 ^ h * i + 2 ^ h - 1}"
+fun labels_under :: "vertex \<Rightarrow> nat set" where
+  "labels_under \<langle>h, i\<rangle> = {2 ^ h * i .. 2 ^ h * i + 2 ^ h - 1}"
 
 lemma labels_under_is_finite:
-  shows "finite (labels_under (h, i))"
+  shows "finite (labels_under \<langle>h, i\<rangle>)"
   by simp
 
 lemma labels_under_cardinality:
-  shows "card (labels_under (h, i)) = 2 ^ h"
+  shows "card (labels_under \<langle>h, i\<rangle>) = 2 ^ h"
   by simp
 
 end
