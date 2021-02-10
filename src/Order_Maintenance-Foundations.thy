@@ -59,7 +59,7 @@ qed
 function (domintros)
   lowest_common_ancestor :: "vertex \<Rightarrow> vertex \<Rightarrow> vertex" (infixl "\<squnion>" 65)
 where
-  "\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle> = parent \<langle>h\<^sub>1, h\<^sub>2\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle>" if "h\<^sub>1 < h\<^sub>2" |
+  "\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle> = parent \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle>" if "h\<^sub>1 < h\<^sub>2" |
   "\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle> = \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> parent \<langle>h\<^sub>2, i\<^sub>2\<rangle>" if "h\<^sub>1 > h\<^sub>2" |
   "\<langle>h, i\<^sub>1\<rangle> \<squnion> \<langle>h, i\<^sub>2\<rangle> = parent \<langle>h, i\<^sub>1\<rangle> \<squnion> parent \<langle>h, i\<^sub>2\<rangle>" if "i\<^sub>1 \<noteq> i\<^sub>2" |
   "\<langle>h, i\<rangle> \<squnion> \<langle>h, i\<rangle> = \<langle>h, i\<rangle>"
