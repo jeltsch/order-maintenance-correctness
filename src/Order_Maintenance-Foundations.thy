@@ -45,12 +45,14 @@ fun parent :: "vertex \<Rightarrow> vertex" where
   "parent \<langle>h, i\<rangle> = \<langle>Suc h, i div 2\<rangle>"
 
 lemma parent_graph_is_acyclic:
-  assumes "parent ^^ n = id"
+  assumes "(parent ^^ n) v = v"
   shows "n = 0"
 proof -
-  have "\<exists>i'. (parent ^^ n) \<langle>h, i\<rangle> = \<langle>h + n, i'\<rangle>" for h and i
-    by (induction n) auto
-  with assms show ?thesis
+  from assms obtain h and i where "\<langle>h, i\<rangle> = (parent ^^ n) \<langle>h, i\<rangle>"
+    by (metis vertex.collapse)
+  also obtain i' where "\<dots> = \<langle>h + n, i'\<rangle>"
+    by (induction n) simp_all
+  finally show ?thesis
     by simp
 qed
 
