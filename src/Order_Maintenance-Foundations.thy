@@ -73,32 +73,19 @@ definition less_vertex :: "vertex \<Rightarrow> vertex \<Rightarrow> bool" where
   [iff]: "(<) = is_child_of\<^sup>+\<^sup>+"
 
 function (domintros) sup_vertex :: "vertex \<Rightarrow> vertex \<Rightarrow> vertex" where
-  "\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle> = parent \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle>" if "h\<^sub>1 < h\<^sub>2" |
-  "\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle> = \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> parent \<langle>h\<^sub>2, i\<^sub>2\<rangle>" if "h\<^sub>1 > h\<^sub>2" |
-  "\<langle>h, i\<^sub>1\<rangle> \<squnion> \<langle>h, i\<^sub>2\<rangle> = parent \<langle>h, i\<^sub>1\<rangle> \<squnion> parent \<langle>h, i\<^sub>2\<rangle>" if "i\<^sub>1 \<noteq> i\<^sub>2" |
-  "\<langle>h, i\<rangle> \<squnion> \<langle>h, i\<rangle> = \<langle>h, i\<rangle>"
+  ascending_simp:
+    "\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle> = parent \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle>" if "h\<^sub>1 < h\<^sub>2" |
+  descending_simp:
+    "\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle> = \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> parent \<langle>h\<^sub>2, i\<^sub>2\<rangle>" if "h\<^sub>1 > h\<^sub>2" |
+  different_indices_simp:
+    "\<langle>h, i\<^sub>1\<rangle> \<squnion> \<langle>h, i\<^sub>2\<rangle> = parent \<langle>h, i\<^sub>1\<rangle> \<squnion> parent \<langle>h, i\<^sub>2\<rangle>" if "i\<^sub>1 \<noteq> i\<^sub>2" |
+  equal_vertices_simp:
+    "\<langle>h, i\<rangle> \<squnion> \<langle>h, i\<rangle> = \<langle>h, i\<rangle>"
   by (auto, metis vertex.exhaust not_less_iff_gr_or_eq)
+  termination sorry
 
-lemma sup_vertex_is_total:
-  shows "sup_vertex_dom (v\<^sub>1, v\<^sub>2)"
-  sorry
-
-lemmas ascending_simp = sup_vertex.psimps(1) [OF _ sup_vertex_is_total]
-lemmas descending_simp = sup_vertex.psimps(2) [OF _ sup_vertex_is_total]
-lemmas different_indices_simp = sup_vertex.psimps(3) [OF _ sup_vertex_is_total]
-lemmas equal_vertices_simp = sup_vertex.psimps(4) [OF sup_vertex_is_total]
-
-lemma sup_vertex_induct [case_names ascending descending different_indices equal_vertices]:
-  assumes
-    "\<And>h\<^sub>1 h\<^sub>2 i\<^sub>1 i\<^sub>2. h\<^sub>1 < h\<^sub>2 \<Longrightarrow> P (parent \<langle>h\<^sub>1, i\<^sub>1\<rangle>) \<langle>h\<^sub>2, i\<^sub>2\<rangle> \<Longrightarrow> P \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<langle>h\<^sub>2, i\<^sub>2\<rangle>"
-  and
-    "\<And>h\<^sub>1 h\<^sub>2 i\<^sub>1 i\<^sub>2. h\<^sub>1 > h\<^sub>2 \<Longrightarrow> P \<langle>h\<^sub>1, i\<^sub>1\<rangle> (parent \<langle>h\<^sub>2, i\<^sub>2\<rangle>) \<Longrightarrow> P \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<langle>h\<^sub>2, i\<^sub>2\<rangle>"
-  and
-    "\<And>i\<^sub>1 i\<^sub>2 h. i\<^sub>1 \<noteq> i\<^sub>2 \<Longrightarrow> P (parent \<langle>h, i\<^sub>1\<rangle>) (parent \<langle>h, i\<^sub>2\<rangle>) \<Longrightarrow> P \<langle>h, i\<^sub>1\<rangle> \<langle>h, i\<^sub>2\<rangle>"
-  and
-    "\<And>h i. P \<langle>h, i\<rangle> \<langle>h, i\<rangle>"
-  shows "P v\<^sub>1 v\<^sub>2"
-  by (induction P v\<^sub>1 v\<^sub>2 rule: sup_vertex.pinduct [OF sup_vertex_is_total]) (insert assms)
+lemmas sup_vertex_induct [case_names ascending descending different_indices equal_vertices] =
+  sup_vertex.induct
 
 instance proof
   show "v < v' \<longleftrightarrow> v \<le> v' \<and> \<not> v' \<le> v" for v v' :: vertex
