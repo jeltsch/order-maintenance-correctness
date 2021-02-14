@@ -47,21 +47,21 @@ fun parent :: "vertex \<Rightarrow> vertex" where
 definition is_child_of :: "vertex \<Rightarrow> vertex \<Rightarrow> bool" where
   [iff]: "is_child_of v v' \<longleftrightarrow> v' = parent v"
 
-lemma ancestor_is_higher:
+lemma descendant_is_lower:
   assumes "is_child_of\<^sup>+\<^sup>+ v v'"
   shows "height v < height v'"
   using assms
   by induction (metis vertex.collapse vertex.sel(1) is_child_of_def parent.simps less_Suc_eq)+
 
-lemma ancestor_or_self_is_at_least_as_high:
+lemma descendant_or_self_is_at_most_as_high:
   assumes "is_child_of\<^sup>*\<^sup>* v v'"
   shows "height v \<le> height v'"
-  using ancestor_is_higher and assms
+  using descendant_is_lower and assms
   by (auto simp add: Nitpick.rtranclp_unfold intro: less_imp_le_nat)
 
 lemma is_child_of_is_acyclic:
   shows "irreflp is_child_of\<^sup>+\<^sup>+"
-  by (rule irreflpI, rule notI) (blast dest: ancestor_is_higher)
+  by (rule irreflpI, rule notI) (blast dest: descendant_is_lower)
 
 instantiation vertex :: semilattice_sup
 begin
@@ -161,7 +161,7 @@ next
   using that unfolding less_eq_vertex_def proof (induction v\<^sub>1 v\<^sub>2 rule: sup_vertex_induct)
     case (ascending h\<^sub>1 h\<^sub>2 i\<^sub>1 i\<^sub>2)
     from \<open>is_child_of\<^sup>*\<^sup>* \<langle>h\<^sub>2, i\<^sub>2\<rangle> v'\<close> have "h\<^sub>2 \<le> height v'"
-      by (auto dest: ancestor_or_self_is_at_least_as_high)
+      by (auto dest: descendant_or_self_is_at_most_as_high)
     with \<open>h\<^sub>1 < h\<^sub>2\<close> have "h\<^sub>1 \<noteq> height v'"
       by simp
     with \<open>is_child_of\<^sup>*\<^sup>* \<langle>h\<^sub>1, i\<^sub>1\<rangle> v'\<close> have "is_child_of\<^sup>+\<^sup>+ \<langle>h\<^sub>1, i\<^sub>1\<rangle> v'"
@@ -176,7 +176,7 @@ next
   next
     case (descending h\<^sub>1 h\<^sub>2 i\<^sub>1 i\<^sub>2)
     from \<open>is_child_of\<^sup>*\<^sup>* \<langle>h\<^sub>1, i\<^sub>1\<rangle> v'\<close> have "h\<^sub>1 \<le> height v'"
-      by (auto dest: ancestor_or_self_is_at_least_as_high)
+      by (auto dest: descendant_or_self_is_at_most_as_high)
     with \<open>h\<^sub>1 > h\<^sub>2\<close> have "h\<^sub>2 \<noteq> height v'"
       by simp
     with \<open>is_child_of\<^sup>*\<^sup>* \<langle>h\<^sub>2, i\<^sub>2\<rangle> v'\<close> have "is_child_of\<^sup>+\<^sup>+ \<langle>h\<^sub>2, i\<^sub>2\<rangle> v'"
@@ -196,7 +196,7 @@ next
         "\<langle>h, i\<^sub>1\<rangle> = v'" and "\<langle>h, i\<^sub>2\<rangle> = v'" |
       (lower_than_sup)
         "is_child_of\<^sup>+\<^sup>+ \<langle>h, i\<^sub>1\<rangle> v'" and "is_child_of\<^sup>+\<^sup>+ \<langle>h, i\<^sub>2\<rangle> v'"
-      by (fastforce dest: rtranclpD ancestor_is_higher)
+      by (fastforce dest: rtranclpD descendant_is_lower)
     then show ?case
     proof cases
       case as_high_as_sup
