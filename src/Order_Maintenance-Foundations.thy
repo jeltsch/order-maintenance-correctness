@@ -1,7 +1,7 @@
 section \<open>Foundations\<close>
 
 theory "Order_Maintenance-Foundations"
-  imports Main
+  imports Main "HOL-Library.Lattice_Syntax"
 begin
 
 subsection \<open>Element Labelings\<close>
@@ -63,18 +63,181 @@ lemma is_child_of_is_acyclic:
   shows "irreflp is_child_of\<^sup>+\<^sup>+"
   by (rule irreflpI, rule notI) (blast dest: ancestor_is_higher)
 
-function (domintros)
-  lowest_common_ancestor :: "vertex \<Rightarrow> vertex \<Rightarrow> vertex" (infixl "\<squnion>" 65)
-where
+instantiation vertex :: semilattice_sup
+begin
+
+definition less_eq_vertex :: "vertex \<Rightarrow> vertex \<Rightarrow> bool" where
+  [iff]: "(\<le>) = is_child_of\<^sup>*\<^sup>*"
+
+definition less_vertex :: "vertex \<Rightarrow> vertex \<Rightarrow> bool" where
+  [iff]: "(<) = is_child_of\<^sup>+\<^sup>+"
+
+function (domintros) sup_vertex :: "vertex \<Rightarrow> vertex \<Rightarrow> vertex" where
   "\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle> = parent \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle>" if "h\<^sub>1 < h\<^sub>2" |
   "\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle> = \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> parent \<langle>h\<^sub>2, i\<^sub>2\<rangle>" if "h\<^sub>1 > h\<^sub>2" |
   "\<langle>h, i\<^sub>1\<rangle> \<squnion> \<langle>h, i\<^sub>2\<rangle> = parent \<langle>h, i\<^sub>1\<rangle> \<squnion> parent \<langle>h, i\<^sub>2\<rangle>" if "i\<^sub>1 \<noteq> i\<^sub>2" |
   "\<langle>h, i\<rangle> \<squnion> \<langle>h, i\<rangle> = \<langle>h, i\<rangle>"
   by (auto, metis vertex.exhaust not_less_iff_gr_or_eq)
 
-lemma lowest_common_ancestor_is_total:
-  shows "lowest_common_ancestor_dom (\<langle>h\<^sub>1, i\<^sub>1\<rangle>, \<langle>h\<^sub>2, i\<^sub>2\<rangle>)"
+lemma sup_vertex_is_total:
+  shows "sup_vertex_dom (v\<^sub>1, v\<^sub>2)"
   sorry
+
+lemmas ascending_simp = sup_vertex.psimps(1) [OF _ sup_vertex_is_total]
+lemmas descending_simp = sup_vertex.psimps(2) [OF _ sup_vertex_is_total]
+lemmas different_indices_simp = sup_vertex.psimps(3) [OF _ sup_vertex_is_total]
+lemmas equal_vertices_simp = sup_vertex.psimps(4) [OF sup_vertex_is_total]
+
+lemma sup_vertex_induct [case_names ascending descending different_indices equal_vertices]:
+  assumes
+    "\<And>h\<^sub>1 h\<^sub>2 i\<^sub>1 i\<^sub>2. h\<^sub>1 < h\<^sub>2 \<Longrightarrow> P (parent \<langle>h\<^sub>1, i\<^sub>1\<rangle>) \<langle>h\<^sub>2, i\<^sub>2\<rangle> \<Longrightarrow> P \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<langle>h\<^sub>2, i\<^sub>2\<rangle>"
+  and
+    "\<And>h\<^sub>1 h\<^sub>2 i\<^sub>1 i\<^sub>2. h\<^sub>1 > h\<^sub>2 \<Longrightarrow> P \<langle>h\<^sub>1, i\<^sub>1\<rangle> (parent \<langle>h\<^sub>2, i\<^sub>2\<rangle>) \<Longrightarrow> P \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<langle>h\<^sub>2, i\<^sub>2\<rangle>"
+  and
+    "\<And>i\<^sub>1 i\<^sub>2 h. i\<^sub>1 \<noteq> i\<^sub>2 \<Longrightarrow> P (parent \<langle>h, i\<^sub>1\<rangle>) (parent \<langle>h, i\<^sub>2\<rangle>) \<Longrightarrow> P \<langle>h, i\<^sub>1\<rangle> \<langle>h, i\<^sub>2\<rangle>"
+  and
+    "\<And>h i. P \<langle>h, i\<rangle> \<langle>h, i\<rangle>"
+  shows "P v\<^sub>1 v\<^sub>2"
+  by (induction P v\<^sub>1 v\<^sub>2 rule: sup_vertex.pinduct [OF sup_vertex_is_total]) (insert assms)
+
+instance proof
+  show "v < v' \<longleftrightarrow> v \<le> v' \<and> \<not> v' \<le> v" for v v' :: vertex
+  unfolding less_vertex_def and less_eq_vertex_def proof
+    assume "is_child_of\<^sup>+\<^sup>+ v v'"
+    show "is_child_of\<^sup>*\<^sup>* v v' \<and> \<not> is_child_of\<^sup>*\<^sup>* v' v"
+    proof
+      from \<open>is_child_of\<^sup>+\<^sup>+ v v'\<close> show "is_child_of\<^sup>*\<^sup>* v v'"
+        by (fact tranclp_into_rtranclp)
+    next
+      from \<open>is_child_of\<^sup>+\<^sup>+ v v'\<close> show "\<not> is_child_of\<^sup>*\<^sup>* v' v"
+        using is_child_of_is_acyclic
+        unfolding irreflp_def
+        by (blast intro: tranclp_rtranclp_tranclp)
+    qed
+  next
+    assume "is_child_of\<^sup>*\<^sup>* v v' \<and> \<not> is_child_of\<^sup>*\<^sup>* v' v"
+    then show "is_child_of\<^sup>+\<^sup>+ v v'"
+      by (blast dest: rtranclpD)
+  qed
+next
+  show "v \<le> v" for v :: vertex
+    by simp
+next
+  show "v \<le> v''" if "v \<le> v'" and "v' \<le> v''" for v v' v'' :: vertex
+    using that
+    by simp
+next
+  show "v\<^sub>1 = v\<^sub>2" if "v\<^sub>1 \<le> v\<^sub>2" and "v\<^sub>2 \<le> v\<^sub>1" for v\<^sub>1 v\<^sub>2 :: vertex
+    using is_child_of_is_acyclic and that
+    unfolding irreflp_def and less_eq_vertex_def
+    by (blast dest: rtranclpD intro: tranclp_rtranclp_tranclp)
+next
+  show "v\<^sub>1 \<le> v\<^sub>1 \<squnion> v\<^sub>2" for v\<^sub>1 v\<^sub>2 :: vertex
+  unfolding less_eq_vertex_def proof (induction v\<^sub>1 v\<^sub>2 rule: sup_vertex_induct)
+    case ascending
+    then show ?case
+      by (auto intro: converse_rtranclp_into_rtranclp simp only: ascending_simp)
+  next
+    case descending
+    then show ?case
+      by (simp only: descending_simp)
+  next
+    case different_indices
+    then show ?case
+      by (metis is_child_of_def converse_rtranclp_into_rtranclp different_indices_simp)
+  next
+    case equal_vertices
+    then show ?case
+      by (simp only: equal_vertices_simp)
+  qed
+next
+  show "v\<^sub>2 \<le> v\<^sub>1 \<squnion> v\<^sub>2" for v\<^sub>1 v\<^sub>2 :: vertex
+  unfolding less_eq_vertex_def proof (induction v\<^sub>1 v\<^sub>2 rule: sup_vertex_induct)
+    case ascending
+    then show ?case
+      by (simp only: ascending_simp)
+  next
+    case descending
+    then show ?case
+      by (auto intro: converse_rtranclp_into_rtranclp simp only: descending_simp)
+  next
+    case different_indices
+    then show ?case
+      by (metis is_child_of_def converse_rtranclp_into_rtranclp different_indices_simp)
+  next
+    case equal_vertices
+    then show ?case
+      by (simp only: equal_vertices_simp)
+  qed
+next
+  show "v\<^sub>1 \<squnion> v\<^sub>2 \<le> v'" if "v\<^sub>1 \<le> v'" and "v\<^sub>2 \<le> v'" for v\<^sub>1 v\<^sub>2 v' :: vertex
+  using that unfolding less_eq_vertex_def proof (induction v\<^sub>1 v\<^sub>2 rule: sup_vertex_induct)
+    case (ascending h\<^sub>1 h\<^sub>2 i\<^sub>1 i\<^sub>2)
+    from \<open>is_child_of\<^sup>*\<^sup>* \<langle>h\<^sub>2, i\<^sub>2\<rangle> v'\<close> have "h\<^sub>2 \<le> height v'"
+      by (auto dest: ancestor_or_self_is_at_least_as_high)
+    with \<open>h\<^sub>1 < h\<^sub>2\<close> have "h\<^sub>1 \<noteq> height v'"
+      by simp
+    with \<open>is_child_of\<^sup>*\<^sup>* \<langle>h\<^sub>1, i\<^sub>1\<rangle> v'\<close> have "is_child_of\<^sup>+\<^sup>+ \<langle>h\<^sub>1, i\<^sub>1\<rangle> v'"
+      by (auto dest: rtranclpD)
+    then have "is_child_of\<^sup>*\<^sup>* (parent \<langle>h\<^sub>1, i\<^sub>1\<rangle>) v'"
+      by (blast dest: tranclpD)
+    with ascending.IH and \<open>is_child_of\<^sup>*\<^sup>* (\<langle>h\<^sub>2, i\<^sub>2\<rangle>) v'\<close>
+    have "is_child_of\<^sup>*\<^sup>* (parent \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle>) v'"
+      by blast
+    with \<open>h\<^sub>1 < h\<^sub>2\<close> show ?case
+      by (simp only: ascending_simp)
+  next
+    case (descending h\<^sub>1 h\<^sub>2 i\<^sub>1 i\<^sub>2)
+    from \<open>is_child_of\<^sup>*\<^sup>* \<langle>h\<^sub>1, i\<^sub>1\<rangle> v'\<close> have "h\<^sub>1 \<le> height v'"
+      by (auto dest: ancestor_or_self_is_at_least_as_high)
+    with \<open>h\<^sub>1 > h\<^sub>2\<close> have "h\<^sub>2 \<noteq> height v'"
+      by simp
+    with \<open>is_child_of\<^sup>*\<^sup>* \<langle>h\<^sub>2, i\<^sub>2\<rangle> v'\<close> have "is_child_of\<^sup>+\<^sup>+ \<langle>h\<^sub>2, i\<^sub>2\<rangle> v'"
+      by (auto dest: rtranclpD)
+    then have "is_child_of\<^sup>*\<^sup>* (parent \<langle>h\<^sub>2, i\<^sub>2\<rangle>) v'"
+      by (blast dest: tranclpD)
+    with descending.IH and \<open>is_child_of\<^sup>*\<^sup>* (\<langle>h\<^sub>1, i\<^sub>1\<rangle>) v'\<close>
+    have "is_child_of\<^sup>*\<^sup>* (\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> parent \<langle>h\<^sub>2, i\<^sub>2\<rangle>) v'"
+      by blast
+    with \<open>h\<^sub>1 > h\<^sub>2\<close> show ?case
+      by (simp only: descending_simp)
+  next
+    case (different_indices i\<^sub>1 i\<^sub>2 h)
+    from \<open>is_child_of\<^sup>*\<^sup>* \<langle>h, i\<^sub>1\<rangle> v'\<close> and \<open>is_child_of\<^sup>*\<^sup>* \<langle>h, i\<^sub>2\<rangle> v'\<close>
+    consider
+      (as_high_as_sup)
+        "\<langle>h, i\<^sub>1\<rangle> = v'" and "\<langle>h, i\<^sub>2\<rangle> = v'" |
+      (lower_than_sup)
+        "is_child_of\<^sup>+\<^sup>+ \<langle>h, i\<^sub>1\<rangle> v'" and "is_child_of\<^sup>+\<^sup>+ \<langle>h, i\<^sub>2\<rangle> v'"
+      by (fastforce dest: rtranclpD ancestor_is_higher)
+    then show ?case
+    proof cases
+      case as_high_as_sup
+      from \<open>\<langle>h, i\<^sub>1\<rangle> = v'\<close> and \<open>\<langle>h, i\<^sub>2\<rangle> = v'\<close> have "i\<^sub>1 = i\<^sub>2"
+        by blast
+      with \<open>i\<^sub>1 \<noteq> i\<^sub>2\<close> show ?thesis
+        by simp
+    next
+      case lower_than_sup
+      from \<open>is_child_of\<^sup>+\<^sup>+ \<langle>h, i\<^sub>1\<rangle> v'\<close> have "is_child_of\<^sup>*\<^sup>* (parent \<langle>h, i\<^sub>1\<rangle>) v'"
+        by (blast dest: tranclpD)
+      moreover
+      from \<open>is_child_of\<^sup>+\<^sup>+ \<langle>h, i\<^sub>2\<rangle> v'\<close> have "is_child_of\<^sup>*\<^sup>* (parent \<langle>h, i\<^sub>2\<rangle>) v'"
+        by (blast dest: tranclpD)
+      ultimately have "is_child_of\<^sup>*\<^sup>* (parent \<langle>h, i\<^sub>1\<rangle> \<squnion> parent \<langle>h, i\<^sub>2\<rangle>) v'"
+        using different_indices.IH
+        by blast
+      then show ?thesis
+        unfolding different_indices_simp [OF \<open>i\<^sub>1 \<noteq> i\<^sub>2\<close>] .
+    qed
+  next
+    case equal_vertices
+    then show ?case
+      by (simp only: equal_vertices_simp)
+  qed
+qed
+
+end
 
 definition index_at_height :: "nat \<Rightarrow> nat \<Rightarrow> nat" where
   [simp]: "index_at_height l h = l div 2 ^ h"
