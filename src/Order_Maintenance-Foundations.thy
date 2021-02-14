@@ -44,20 +44,24 @@ datatype vertex = Vertex (height: \<open>nat\<close>) (index: \<open>nat\<close>
 fun parent :: "vertex \<Rightarrow> vertex" where
   "parent \<langle>h, i\<rangle> = \<langle>Suc h, i div 2\<rangle>"
 
-lemma parent_graph_is_acyclic:
-  assumes "(parent ^^ n) v = v"
-  shows "n = 0"
-proof -
-  from assms obtain h and i where "\<langle>h, i\<rangle> = (parent ^^ n) \<langle>h, i\<rangle>"
-    by (metis vertex.collapse)
-  also obtain i' where "\<dots> = \<langle>h + n, i'\<rangle>"
-    by (induction n) simp_all
-  finally show ?thesis
-    by simp
-qed
-
 definition is_child_of :: "vertex \<Rightarrow> vertex \<Rightarrow> bool" where
   [iff]: "is_child_of v v' \<longleftrightarrow> v' = parent v"
+
+lemma ancestor_is_higher:
+  assumes "is_child_of\<^sup>+\<^sup>+ v v'"
+  shows "height v < height v'"
+  using assms
+  by induction (metis vertex.collapse vertex.sel(1) is_child_of_def parent.simps less_Suc_eq)+
+
+lemma ancestor_or_self_is_at_least_as_high:
+  assumes "is_child_of\<^sup>*\<^sup>* v v'"
+  shows "height v \<le> height v'"
+  using ancestor_is_higher and assms
+  by (auto simp add: Nitpick.rtranclp_unfold intro: less_imp_le_nat)
+
+lemma is_child_of_is_acyclic:
+  shows "irreflp is_child_of\<^sup>+\<^sup>+"
+  by (rule irreflpI, rule notI) (blast dest: ancestor_is_higher)
 
 function (domintros)
   lowest_common_ancestor :: "vertex \<Rightarrow> vertex \<Rightarrow> vertex" (infixl "\<squnion>" 65)
