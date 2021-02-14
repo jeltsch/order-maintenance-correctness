@@ -56,6 +56,9 @@ proof -
     by simp
 qed
 
+definition is_child_of :: "vertex \<Rightarrow> vertex \<Rightarrow> bool" where
+  [iff]: "is_child_of v v' \<longleftrightarrow> v' = parent v"
+
 function (domintros)
   lowest_common_ancestor :: "vertex \<Rightarrow> vertex \<Rightarrow> vertex" (infixl "\<squnion>" 65)
 where
