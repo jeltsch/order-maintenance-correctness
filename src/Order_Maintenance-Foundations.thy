@@ -72,7 +72,7 @@ definition less_eq_vertex :: "vertex \<Rightarrow> vertex \<Rightarrow> bool" wh
 definition less_vertex :: "vertex \<Rightarrow> vertex \<Rightarrow> bool" where
   [iff]: "(<) = is_child_of\<^sup>+\<^sup>+"
 
-function (domintros) sup_vertex :: "vertex \<Rightarrow> vertex \<Rightarrow> vertex" where
+function sup_vertex :: "vertex \<Rightarrow> vertex \<Rightarrow> vertex" where
   ascending_simp:
     "\<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle> = parent \<langle>h\<^sub>1, i\<^sub>1\<rangle> \<squnion> \<langle>h\<^sub>2, i\<^sub>2\<rangle>" if "h\<^sub>1 < h\<^sub>2" |
   descending_simp:
