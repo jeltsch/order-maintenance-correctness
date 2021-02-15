@@ -14,7 +14,7 @@ When committing to the Git repository, please follow these rules:
 
   * Limit the subject line to 58 characters.
 
-  * Start the subject with a capital letter.
+  * Start the subject line with a capital letter.
 
   * Do not end the subject line with a period.
 
