@@ -41,6 +41,9 @@ subsection \<open>Supertrees\<close>
 
 datatype vertex = Vertex (height: \<open>nat\<close>) (index: \<open>nat\<close>) (\<open>\<langle>_, _\<rangle>\<close>)
 
+definition leaves :: "vertex set" where
+  [simp]: "leaves = {v. height v = 0}"
+
 fun parent :: "vertex \<Rightarrow> vertex" where
   "parent \<langle>h, i\<rangle> = \<langle>Suc h, i div 2\<rangle>"
 
