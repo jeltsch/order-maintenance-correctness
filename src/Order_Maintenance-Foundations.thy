@@ -262,4 +262,8 @@ type_synonym 'e relabeling_state = "'e \<times> nat"
 
 type_synonym 'e relabeling_states = "vertex \<rightharpoonup> 'e relabeling_state"
 
+subsection \<open>States\<close>
+
+type_synonym 'e state = "'e element_labeling \<times> 'e relabeling_state"
+
 end
