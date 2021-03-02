@@ -256,4 +256,10 @@ lemma labels_under_cardinality:
   shows "card (labels_under \<langle>h, i\<rangle>) = 2 ^ h"
   by simp
 
+subsection \<open>Relabeling States\<close>
+
+type_synonym 'e relabeling_state = "'e \<times> nat"
+
+type_synonym 'e relabeling_states = "vertex \<rightharpoonup> 'e relabeling_state"
+
 end
