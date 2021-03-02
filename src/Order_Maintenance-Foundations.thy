@@ -6,6 +6,9 @@ begin
 
 subsection \<open>Element Labelings\<close>
 
+locale element_supply =
+  assumes element_supply_is_infinite: "infinite (UNIV :: 'e set)"
+
 typedef 'e element_labeling = "{m :: 'e \<rightharpoonup> nat. finite (dom m) \<and> inj_on m (dom m)}"
   by (rule exI [where x = Map.empty]) simp
 
@@ -36,6 +39,16 @@ lemma label_of_after_element_of:
   unfolding element_of_def
   using assms
   by transfer (smt inj_onD dom_def ran_def not_None_eq mem_Collect_eq option.sel theI')
+
+definition fresh_element :: "'e element_labeling \<Rightarrow> 'e" where
+  [simp]: "fresh_element \<E> = (SOME e. e \<notin> elements \<E>)"
+
+lemma (in element_supply) fresh_element_is_fresh:
+  fixes \<E> :: "'e element_labeling"
+  shows "fresh_element \<E> \<notin> elements \<E>"
+  using element_supply_is_infinite
+  unfolding fresh_element_def
+  by transfer (metis someI ex_new_if_finite)
 
 subsection \<open>Supertrees\<close>
 
