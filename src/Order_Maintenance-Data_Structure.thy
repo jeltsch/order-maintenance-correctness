@@ -46,8 +46,8 @@ definition fresh_element :: "'e element_labeling \<Rightarrow> 'e" where
 lemma (in element_supply) fresh_element_is_fresh:
   fixes \<E> :: "'e element_labeling"
   shows "fresh_element \<E> \<notin> elements \<E>"
-  using element_supply_is_infinite
   unfolding fresh_element_def
+  using element_supply_is_infinite
   by transfer (metis someI ex_new_if_finite)
 
 subsection \<open>Supertrees\<close>
