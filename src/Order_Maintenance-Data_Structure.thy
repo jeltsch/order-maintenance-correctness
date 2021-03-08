@@ -1,6 +1,6 @@
-section \<open>Foundations\<close>
+section \<open>Data Structure\<close>
 
-theory "Order_Maintenance-Foundations"
+theory "Order_Maintenance-Data_Structure"
   imports Main "HOL-Library.Lattice_Syntax"
 begin
 
