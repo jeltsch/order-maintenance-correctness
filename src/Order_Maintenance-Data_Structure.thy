@@ -57,7 +57,7 @@ datatype vertex = Vertex (height: \<open>nat\<close>) (index: \<open>nat\<close>
 definition leaves :: "vertex set" where
   [simp]: "leaves = {v. height v = 0}"
 
-fun parent :: "vertex \<Rightarrow> vertex" where
+primrec parent :: "vertex \<Rightarrow> vertex" where
   "parent \<langle>h, i\<rangle> = \<langle>Suc h, i div 2\<rangle>"
 
 definition is_child_of :: "vertex \<Rightarrow> vertex \<Rightarrow> bool" where
@@ -245,7 +245,7 @@ end
 definition index_at_height :: "nat \<Rightarrow> nat \<Rightarrow> nat" where
   [simp]: "index_at_height l h = l div 2 ^ h"
 
-fun labels_under :: "vertex \<Rightarrow> nat set" where
+primrec labels_under :: "vertex \<Rightarrow> nat set" where
   "labels_under \<langle>h, i\<rangle> = {2 ^ h * i .. 2 ^ h * i + 2 ^ h - 1}"
 
 lemma labels_under_is_finite:
