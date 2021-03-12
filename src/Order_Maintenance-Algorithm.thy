@@ -18,7 +18,7 @@ definition insert_element_with_label :: "'e \<Rightarrow> nat \<Rightarrow> 'e s
   [simp]: "insert_element_with_label e l S = undefined"
   (*FIXME: Add the actual implementation. *)
 
-fun new_element_with_label :: "nat \<Rightarrow> 'e state \<Rightarrow> 'e state" where
+primrec new_element_with_label :: "nat \<Rightarrow> 'e state \<Rightarrow> 'e state" where
   "new_element_with_label l (\<E>, R) = insert_element_with_label (fresh_element \<E>) l (\<E>, R)"
 
 end
